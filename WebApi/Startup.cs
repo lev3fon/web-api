@@ -1,3 +1,4 @@
+using Game.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ namespace WebApi
                     options.SuppressModelStateInvalidFilter = true;
                     options.SuppressMapClientErrors = true;
                 });
+            services.AddSingleton<IUserRepository, InMemoryUserRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
