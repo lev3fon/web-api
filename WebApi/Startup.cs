@@ -51,6 +51,7 @@ namespace WebApi
                         "FullName", 
                         opt => opt.MapFrom(
                             user => $"{user.LastName} {user.FirstName}"));
+                cfg.CreateMap<MyUserDTO, UserEntity>();
             }, new System.Reflection.Assembly[0]);
         }
 
