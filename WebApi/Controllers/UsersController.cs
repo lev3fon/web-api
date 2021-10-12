@@ -1,4 +1,5 @@
 ﻿using System;
+using AutoMapper;
 using Game.Domain;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
@@ -11,9 +12,11 @@ namespace WebApi.Controllers
     {
         // Чтобы ASP.NET положил что-то в userRepository требуется конфигурация\
         private IUserRepository userRepository;
-        public UsersController(IUserRepository userRepository)
+        private IMapper mapper;
+        public UsersController(IUserRepository userRepository, IMapper mapper)
         {
             this.userRepository = userRepository;
+            this.mapper = mapper;
         }
 
         [HttpGet("{userId}")]
@@ -23,10 +26,8 @@ namespace WebApi.Controllers
             var user = userRepository.FindById(userId);
             if (user is null)
                 return NotFound();
-            
-            var res = new UserDto();
-            res.Id = userId;
-            res.FullName = $"{user.LastName} {user.FirstName}";
+
+            var res = mapper.Map<UserEntity, UserDto>(user);
             
             return Ok(res);
         }
