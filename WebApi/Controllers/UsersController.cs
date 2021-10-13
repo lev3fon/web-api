@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AutoMapper;
 using Game.Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace WebApi.Controllers
         // Чтобы ASP.NET положил что-то в userRepository требуется конфигурация\
         private IUserRepository userRepository;
         private IMapper mapper;
+
         public UsersController(IUserRepository userRepository, IMapper mapper)
         {
             this.userRepository = userRepository;
@@ -28,7 +30,7 @@ namespace WebApi.Controllers
                 return NotFound();
 
             var res = mapper.Map<UserEntity, UserDto>(user);
-            
+
             return Ok(res);
         }
 
@@ -36,15 +38,20 @@ namespace WebApi.Controllers
         [Produces("application/json", "application/xml")]
         public IActionResult CreateUser([FromBody] MyUserDTO user)
         {
+            if (user.Login.Any(symbol => !char.IsLetterOrDigit(symbol)))
+                ModelState.AddModelError(nameof(user.Login), "Некорректный логин");
+
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+            
             var userEntity = mapper.Map<MyUserDTO, UserEntity>(user);
             var createdUserEntity = userRepository.Insert(userEntity);
-            
-            if (ModelState.IsValid)
-                return CreatedAtRoute(
-                    nameof(GetUserById),
-                    new { userId = createdUserEntity.Id },
-                    user);
-            return UnprocessableEntity(ModelState);
+
+            return CreatedAtRoute(
+                nameof(GetUserById),
+                new {userId = createdUserEntity.Id},
+                user);
+
             throw new NotImplementedException();
         }
     }

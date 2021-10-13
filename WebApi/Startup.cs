@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Serialization;
 using WebApi.Models;
 
 namespace WebApi
@@ -27,7 +28,9 @@ namespace WebApi
                     options.SuppressModelStateInvalidFilter = true;
                     options.SuppressMapClientErrors = true;
                 });
+
             services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+
             services.AddControllers(options =>
                 {
                     // Этот OutputFormatter позволяет возвращать данные в XML, если требуется.
@@ -42,13 +45,17 @@ namespace WebApi
                 {
                     options.SuppressModelStateInvalidFilter = true;
                     options.SuppressMapClientErrors = true;
+                }).AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 });
+
             services.AddAutoMapper(cfg =>
             {
                 cfg
                     .CreateMap<UserEntity, UserDto>()
                     .ForMember(
-                        "FullName", 
+                        "FullName",
                         opt => opt.MapFrom(
                             user => $"{user.LastName} {user.FirstName}"));
                 cfg.CreateMap<MyUserDTO, UserEntity>();
