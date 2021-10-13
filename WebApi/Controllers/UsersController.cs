@@ -86,7 +86,7 @@ namespace WebApi.Controllers
         [Produces("application/json", "application/xml")]
         public IActionResult PartiallyUpdateUser([FromRoute] Guid userId, [FromBody] JsonPatchDocument<MyUserUpdateDTO> patchDoc)
         {
-            if (patchDoc is null || userId == Guid.Empty)
+            if (patchDoc is null)
                 return BadRequest();
 
             var user = userRepository.FindById(userId);
@@ -98,11 +98,11 @@ namespace WebApi.Controllers
             patchDoc.ApplyTo(updateDto, ModelState);
             
             // Валидация по атрибутам
-            var isValid = TryValidateModel(user);
+            var isValid = TryValidateModel(updateDto);
             // Другие валидации...
 
             if (!isValid)
-                return BadRequest();
+                return UnprocessableEntity(ModelState);
 
             mapper.Map(updateDto, user);
             userRepository.Update(user);
