@@ -58,8 +58,8 @@ namespace WebApi.Controllers
         }
         
         [HttpPut("{userId}")]
-
-        public IActionResult UpdateUser ([FromRoute] Guid userId, [FromBody] MyUserUpdate user)
+        [Produces("application/json", "application/xml")]
+        public IActionResult UpdateUser ([FromRoute] Guid userId, [FromBody] MyUserUpdateDTO user)
         {
             if (user is null || userId == Guid.Empty)
                 return BadRequest();
