@@ -12,8 +12,8 @@ namespace WebApi.Controllers
     public class UsersController : Controller
     {
         // Чтобы ASP.NET положил что-то в userRepository требуется конфигурация\
-        private IUserRepository userRepository;
-        private IMapper mapper;
+        private readonly IUserRepository userRepository;
+        private readonly IMapper mapper;
 
         public UsersController(IUserRepository userRepository, IMapper mapper)
         {
@@ -61,7 +61,7 @@ namespace WebApi.Controllers
 
         public IActionResult UpdateUser ([FromRoute] Guid userId, [FromBody] MyUserUpdate user)
         {
-            if (userId == Guid.Empty || user is null)
+            if (user is null || userId == Guid.Empty)
                 return BadRequest();
             
             if (!ModelState.IsValid)
