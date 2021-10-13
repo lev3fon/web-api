@@ -41,7 +41,7 @@ namespace WebApi.Controllers
             if (user is null)
                 return BadRequest();
             
-            if ( string.IsNullOrEmpty(user.Login) || user.Login.Any(symbol => !char.IsLetterOrDigit(symbol)))
+            if ( string.IsNullOrEmpty(user.Login) || !user.Login.All(symbol => char.IsLetterOrDigit(symbol)))
                 ModelState.AddModelError(nameof(user.Login), "Некорректный логин");
 
             if (!ModelState.IsValid)
@@ -53,9 +53,8 @@ namespace WebApi.Controllers
             return CreatedAtRoute(
                 nameof(GetUserById),
                 new {userId = createdUserEntity.Id},
-                userEntity.Id);
-
-            throw new NotImplementedException();
+                createdUserEntity.Id);
+            
         }
     }
 }
