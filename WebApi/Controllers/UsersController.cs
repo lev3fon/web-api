@@ -38,7 +38,10 @@ namespace WebApi.Controllers
         [Produces("application/json", "application/xml")]
         public IActionResult CreateUser([FromBody] MyUserDTO user)
         {
-            if (user.Login != null && user.Login.Any(symbol => !char.IsLetterOrDigit(symbol)))
+            if (user is null)
+                return BadRequest();
+            
+            if ( string.IsNullOrEmpty(user.Login) || user.Login.Any(symbol => !char.IsLetterOrDigit(symbol)))
                 ModelState.AddModelError(nameof(user.Login), "Некорректный логин");
 
             if (!ModelState.IsValid)
@@ -50,7 +53,7 @@ namespace WebApi.Controllers
             return CreatedAtRoute(
                 nameof(GetUserById),
                 new {userId = createdUserEntity.Id},
-                user);
+                userEntity.Id);
 
             throw new NotImplementedException();
         }
