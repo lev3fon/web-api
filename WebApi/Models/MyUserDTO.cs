@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace WebApi.Models
@@ -7,7 +8,9 @@ namespace WebApi.Models
     {
         [Required]
         public string Login { get; set; }
+        [DefaultValue("John")]
         public string FirstName { get; set; }
+        [DefaultValue("Doe")]
         public string LastName { get; set; }
     }
 }

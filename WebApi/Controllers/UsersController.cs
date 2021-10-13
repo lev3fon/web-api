@@ -38,7 +38,7 @@ namespace WebApi.Controllers
         [Produces("application/json", "application/xml")]
         public IActionResult CreateUser([FromBody] MyUserDTO user)
         {
-            if (user.Login.Any(symbol => !char.IsLetterOrDigit(symbol)))
+            if (user.Login != null && user.Login.Any(symbol => !char.IsLetterOrDigit(symbol)))
                 ModelState.AddModelError(nameof(user.Login), "Некорректный логин");
 
             if (!ModelState.IsValid)
