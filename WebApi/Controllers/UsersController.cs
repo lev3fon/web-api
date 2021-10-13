@@ -56,5 +56,31 @@ namespace WebApi.Controllers
                 createdUserEntity.Id);
             
         }
+        
+        [HttpPut("{userId}")]
+
+        public IActionResult UpdateUser ([FromRoute] Guid userId, [FromBody] MyUserUpdate user)
+        {
+            if (userId == Guid.Empty || user is null)
+                return BadRequest();
+            
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
+            var userUpdate = new UserEntity(userId);
+            mapper.Map(user, userUpdate);
+
+            bool isInsert;
+            userRepository.UpdateOrInsert(userUpdate, out isInsert);
+
+            if (!isInsert)
+                return NoContent();
+            
+            return CreatedAtRoute(
+                nameof(GetUserById),
+                new { userId = userUpdate.Id },
+                userUpdate.Id);
+
+        }
     }
 }
