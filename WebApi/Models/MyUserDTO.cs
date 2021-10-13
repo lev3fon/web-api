@@ -1,11 +1,13 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApi.Models
 {
     public class MyUserDTO
     {
-        public string Login;
-        public string FirstName;
-        public string LastName;
+        [Required]
+        public string Login { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
     }
 }

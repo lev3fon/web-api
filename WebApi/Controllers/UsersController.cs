@@ -38,11 +38,13 @@ namespace WebApi.Controllers
         {
             var userEntity = mapper.Map<MyUserDTO, UserEntity>(user);
             var createdUserEntity = userRepository.Insert(userEntity);
-
-            return CreatedAtRoute(
-                nameof(GetUserById),
-                new { userId = createdUserEntity.Id },
-                user);
+            
+            if (ModelState.IsValid)
+                return CreatedAtRoute(
+                    nameof(GetUserById),
+                    new { userId = createdUserEntity.Id },
+                    user);
+            return UnprocessableEntity(ModelState);
             throw new NotImplementedException();
         }
     }
