@@ -138,7 +138,7 @@ namespace WebApi.Controllers
         // [HttpGet("{pageNumber}, {pageSize}")]
         [Produces("application/json", "application/xml")]
         [HttpGet(Name = nameof(GetUsers))]
-        public ActionResult<UserDto>  GetUsers()
+        public ActionResult<UserDto> GetUsers()
         {
             var pageNumber = 1;
             var pageSize = 10;
@@ -184,6 +184,15 @@ namespace WebApi.Controllers
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationHeader));
             
             return Ok(users);
+        }
+
+        [HttpOptions]
+        public IActionResult MyMethod()
+        {
+            var methods = new [] {"POST", "GET", "OPTIONS"}; //вообще не понял, что сделал)
+
+        Response.Headers.Add("Allow", methods);
+            return Ok();
         }
     }
 }
