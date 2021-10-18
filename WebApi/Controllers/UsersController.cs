@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Game.Domain;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Newtonsoft.Json;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -15,11 +21,13 @@ namespace WebApi.Controllers
         // Чтобы ASP.NET положил что-то в userRepository требуется конфигурация\
         private readonly IUserRepository userRepository;
         private readonly IMapper mapper;
+        private LinkGenerator linkGenerator;
 
-        public UsersController(IUserRepository userRepository, IMapper mapper)
+        public UsersController(IUserRepository userRepository, IMapper mapper, LinkGenerator linkGenerator)
         {
             this.userRepository = userRepository;
             this.mapper = mapper;
+            this.linkGenerator = linkGenerator;
         }
 
         [HttpGet("{userId}", Name = nameof(GetUserById))]
@@ -123,6 +131,49 @@ namespace WebApi.Controllers
             userRepository.Delete(userId);
 
             return NoContent();
+        }
+        
+        [HttpGet]
+        // [HttpGet("{pageNumber}, {pageSize}")]
+        [Produces("application/json", "application/xml")]
+        public ActionResult<UserDto>  GetUsers()
+        {
+            var pageNumber = 1;
+            var pageSize = 10;
+
+            if (Request.QueryString.HasValue)
+            {
+                var querySrting = Request.QueryString.Value;
+                var queryDict = QueryHelpers.ParseQuery(querySrting);
+
+                if (queryDict.ContainsKey("pageNumber"))
+                    pageNumber = int.Parse(queryDict["pageNumber"]);
+                if (queryDict.ContainsKey("pageSize"))
+                    pageSize = int.Parse(queryDict["pageSize"]);
+            }
+
+            if (pageNumber < 1)
+                return BadRequest();
+            if (pageSize < 1 || pageSize > 20)
+                return BadRequest();
+
+            var pageList = userRepository.GetPage(pageNumber, pageSize);
+            var users = mapper.Map<IEnumerable<UserDto>>(pageList);
+            
+            var pPL = linkGenerator.GetUriByRouteValues(HttpContext, "Имя метода из атрибута", new {pageNumber, pageSize});
+            
+            var paginationHeader = new
+            {
+                previousPageLink = pPL,
+                nextPageLink = pPL,
+                totalCount = users.Count(),
+                pageSize = pageSize,
+                currentPage = pageNumber,
+                totalPages = users.Count() / pageSize
+            };
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(paginationHeader));
+            
+            return Ok(users);
         }
     }
 }
