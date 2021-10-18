@@ -155,9 +155,11 @@ namespace WebApi.Controllers
             }
 
             if (pageNumber < 1)
-                return BadRequest();
-            if (pageSize < 1 || pageSize > 20)
-                return BadRequest();
+                pageNumber = 1;
+            if (pageSize > 20)
+                pageSize = 20;
+            if (pageSize < 1)
+                pageSize = 1;
 
             var pageList = userRepository.GetPage(pageNumber, pageSize);
             var users = mapper.Map<IEnumerable<UserDto>>(pageList);
