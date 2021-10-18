@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using AutoMapper;
 using Game.Domain;
 using Microsoft.AspNetCore.Http;
@@ -133,9 +134,10 @@ namespace WebApi.Controllers
             return NoContent();
         }
         
-        [HttpGet]
+        // [HttpGet]
         // [HttpGet("{pageNumber}, {pageSize}")]
         [Produces("application/json", "application/xml")]
+        [HttpGet(Name = nameof(GetUsers))]
         public ActionResult<UserDto>  GetUsers()
         {
             var pageNumber = 1;
@@ -160,12 +162,18 @@ namespace WebApi.Controllers
             var pageList = userRepository.GetPage(pageNumber, pageSize);
             var users = mapper.Map<IEnumerable<UserDto>>(pageList);
             
-            var pPL = linkGenerator.GetUriByRouteValues(HttpContext, "Имя метода из атрибута", new {pageNumber, pageSize});
+            var pPL = linkGenerator.GetUriByRouteValues(HttpContext, nameof(GetUsers), 
+                new {pageNumber = pageNumber - 1, pageSize = pageSize});
+            var nPL = linkGenerator.GetUriByRouteValues(HttpContext, nameof(GetUsers), 
+                new {pageNumber = pageNumber + 1, pageSize = pageSize});
+
+            if (pageNumber == 1)
+                pPL = null;
             
             var paginationHeader = new
             {
                 previousPageLink = pPL,
-                nextPageLink = pPL,
+                nextPageLink = nPL,
                 totalCount = users.Count(),
                 pageSize = pageSize,
                 currentPage = pageNumber,
